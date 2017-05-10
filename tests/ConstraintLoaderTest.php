@@ -7,42 +7,84 @@ use skiptirengu\mssql\ConstraintLoader;
 
 class ConstraintLoaderTest extends TestCase
 {
-    public function testLoadExtractsDefaultValues()
+    public function defaultValuesProvider()
     {
-        $dataRows = [
-            ['constraint_type' => 'DEFAULT on column time', 'constraint_keys' => '(\'2002-01-01 00:00:00\')'],
-            ['constraint_type' => 'DEFAULT on column space col', 'constraint_keys' => '(\'1\')'],
-            ['constraint_type' => 'DEFAULT on column space col2 num', 'constraint_keys' => '(\'something\')'],
-            ['constraint_type' => 'DEFAULT on column Under_score', 'constraint_keys' => '(\'1.23\')'],
-            ['constraint_type' => 'DEFAULT on column column_column', 'constraint_keys' => '(\'42.42\')'],
-            ['constraint_type' => 'DEFAULT on column column column column', 'constraint_keys' => '(NULL)'],
+        return [
+            [
+                [['constraint_type' => 'DEFAULT on column time', 'constraint_keys' => '(\'2002-01-01 00:00:00\')']],
+                ['time' => '(\'2002-01-01 00:00:00\')']
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column space col', 'constraint_keys' => '(\'1\')']],
+                ['space col' => '(\'1\')',]
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column space col2 num', 'constraint_keys' => '(\'something\')']],
+                ['space col2 num' => '(\'something\')',]
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column Under_score', 'constraint_keys' => '(\'1.23\')']],
+                ['Under_score' => '(\'1.23\')']
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column column_column', 'constraint_keys' => '(\'42.42\')']],
+                ['column_column' => '(\'42.42\')',]
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column column column column', 'constraint_keys' => '(NULL)']],
+                ['column column column' => '(NULL)']
+            ],
+            [
+                [
+                    ['constraint_type' => 'DEFAULT on column foo', 'constraint_keys' => '(\'foo\')'],
+                    ['constraint_type' => 'DEFAULT on column bar', 'constraint_keys' => '(\'bar\')'],
+                ],
+                ['foo' => '(\'foo\')', 'bar' => '(\'bar\')']
+            ]
         ];
-        $expected = [
-            'time' => '(\'2002-01-01 00:00:00\')',
-            'space col' => '(\'1\')',
-            'space col2 num' => '(\'something\')',
-            'Under_score' => '(\'1.23\')',
-            'column_column' => '(\'42.42\')',
-            'column column column' => '(NULL)'
-        ];
+    }
+
+    /**
+     * @dataProvider defaultValuesProvider
+     */
+    public function testLoadExtractsDefaultValues($dataRows, $expected)
+    {
         $loader = new ConstraintLoader();
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->defaultValues);
     }
 
-    public function testLoadExtractsUniqueIndexes()
+    public function indexesProvider()
     {
-        $dataRows = [
-            ['constraint_type' => 'UNIQUE (non-clustered)', 'constraint_name' => 'UQ_cons_1', 'constraint_keys' => 'id'],
-            ['constraint_type' => 'UNIQUE (non-clustered)', 'constraint_name' => 'UQ_cons_2', 'constraint_keys' => 'id, col1'],
-            ['constraint_type' => 'UNIQUE (clustered)', 'constraint_name' => 'UQ_cons_3', 'constraint_keys' => 'id, col1, col2, col3'],
+        return [
+            [
+                [['constraint_type' => 'UNIQUE (non-clustered)', 'constraint_name' => 'UQ_cons_1', 'constraint_keys' => 'id']],
+                ['UQ_cons_1' => ['id']]
+            ],
+            [
+                [['constraint_type' => 'UNIQUE (non-clustered)', 'constraint_name' => 'UQ_cons_2', 'constraint_keys' => 'id, col1']],
+                ['UQ_cons_2' => ['id', 'col1']]
+            ],
+            [
+                [['constraint_type' => 'UNIQUE (clustered)', 'constraint_name' => 'UQ_cons_3', 'constraint_keys' => 'id, col1, col2, col3']],
+                ['UQ_cons_3' => ['id', 'col1', 'col2', 'col3']]
+            ],
+            [
+                [
+                    ['constraint_type' => 'UNIQUE', 'constraint_name' => 'UQ_cons_4', 'constraint_keys' => 'one'],
+                    ['constraint_type' => 'UNIQUE', 'constraint_name' => 'UQ_cons_5', 'constraint_keys' => 'one, two']
+                ],
+                ['UQ_cons_4' => ['one'], 'UQ_cons_5' => ['one', 'two']]
+            ]
         ];
-        $expected = [
-            'UQ_cons_1' => ['id'],
-            'UQ_cons_2' => ['id', 'col1'],
-            'UQ_cons_3' => ['id', 'col1', 'col2', 'col3']
-        ];
+    }
+
+    /**
+     * @dataProvider indexesProvider
+     */
+    public function testLoadExtractsUniqueIndexes($dataRows, $expected)
+    {
         $loader = new ConstraintLoader();
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
