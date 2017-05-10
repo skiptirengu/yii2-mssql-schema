@@ -7,7 +7,7 @@ use skiptirengu\mssql\IdentityLoader;
 
 class IdentityLoaderTest extends TestCase
 {
-    public function testLoadIdentity()
+    public function testLoadNoIdentity()
     {
         $loader = new IdentityLoader();
         $loader->load([[]]);
@@ -15,7 +15,7 @@ class IdentityLoaderTest extends TestCase
         $this->assertTrue($loader->isLoaded);
     }
 
-    public function testLoadNoIdentity()
+    public function testLoadIdentity()
     {
         $loader = new IdentityLoader();
         $loader->load([['Identity' => 'id_column']]);
