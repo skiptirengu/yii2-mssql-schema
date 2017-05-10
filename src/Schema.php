@@ -2,6 +2,7 @@
 
 namespace skiptirengu\mssql;
 
+use Exception;
 use PDOException;
 use yii\db\mssql\Schema as BaseSchema;
 use yii\db\mssql\TableSchema;
@@ -18,19 +19,30 @@ class Schema extends BaseSchema
      * Exception thrown when trying to read a resulset without any fields
      */
     const NO_FIELDS_EXCEPTION = 'The active result for the query contains no fields';
-
+    /**
+     * @var string
+     */
+    public $constraintLoaderClass = ConstraintLoader::class;
+    /**
+     * @var string
+     */
+    public $columnLoaderClass = ColumnLoader::class;
+    /**
+     * @var string
+     */
+    public $identityLoderClass = IdentityLoader::class;
     /**
      * @var ConstraintLoader
      */
-    protected $constraintLoader;
+    public $constraintLoader;
     /**
      * @var ColumnLoader
      */
-    protected $columnLoader;
+    public $columnLoader;
     /**
      * @var IdentityLoader
      */
-    protected $identityLoader;
+    public $identityLoader;
 
     /**
      * @inheritdoc
@@ -57,10 +69,12 @@ class Schema extends BaseSchema
      *
      * @param TableSchema $table the table metadata
      * @return void
+     * @throws Exception
      */
     public function prepareTableSchema($table)
     {
-        $reader = $this->db->createCommand('sp_help :tbl', [':tbl' => $table->fullName])->query();
+        $this->createLoaders();
+        $reader = $this->createDataReader($table);
         do {
             try {
                 if ($this->extractData($reader->readAll())) {
@@ -69,10 +83,35 @@ class Schema extends BaseSchema
             } catch (PDOException $ex) {
                 // just skip this exception in case NOCOUNT is set to OFF
                 if (strpos($ex->getMessage(), self::NO_FIELDS_EXCEPTION) === false) {
+                    $reader->close();
                     throw $ex;
                 }
+            } catch (Exception $ex) {
+                // close cursor before re-throwing the exception
+                $reader->close();
+                throw $ex;
             }
         } while ($reader->nextResult());
+        $reader->close();
+    }
+
+    /**
+     * @return void
+     */
+    public function createLoaders()
+    {
+        $this->constraintLoader = new $this->constraintLoaderClass();
+        $this->columnLoader = new $this->columnLoaderClass();
+        $this->identityLoader = new $this->identityLoderClass();
+    }
+
+    /**
+     * @param $table
+     * @return \yii\db\DataReader
+     */
+    protected function createDataReader($table)
+    {
+        return $this->db->createCommand('sp_help :tbl', [':tbl' => $table->fullName])->query();
     }
 
     /**
@@ -81,20 +120,19 @@ class Schema extends BaseSchema
      * @param array $info
      * @return bool
      */
-    protected function extractData($info)
+    public function extractData($info)
     {
         // peek the first value of the rs to determine the kind of information it has
         $first = reset($info);
 
         if (isset($first['constraint_type'])) {
-            $this->constraintLoader = new ConstraintLoader();
             $this->constraintLoader->load($info);
         } elseif (isset($first['Column_name'])) {
-            $this->columnLoader = new ColumnLoader();
             $this->columnLoader->load($info);
         } elseif (isset($first['Identity'])) {
-            $this->identityLoader = new IdentityLoader();
             $this->identityLoader->load($info);
+        } else {
+            return false;
         }
 
         return $this->constraintLoader->isLoaded
@@ -109,6 +147,8 @@ class Schema extends BaseSchema
      */
     protected function resetTableInfo()
     {
-        preg_match('/\(([\w,\s])+\)/', '');
+        $this->constraintLoader = null;
+        $this->columnLoader = null;
+        $this->identityLoader = null;
     }
 }
