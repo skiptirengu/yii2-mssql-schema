@@ -59,15 +59,24 @@ class ConstraintLoaderTest extends TestCase
     {
         return [
             [
-                [['constraint_type' => 'UNIQUE (non-clustered)', 'constraint_name' => 'UQ_cons_1', 'constraint_keys' => 'id']],
+                [[
+                    'constraint_type' => 'UNIQUE (non-clustered)',
+                    'constraint_name' => 'UQ_cons_1', 'constraint_keys' => 'id'
+                ]],
                 ['UQ_cons_1' => ['id']]
             ],
             [
-                [['constraint_type' => 'UNIQUE (non-clustered)', 'constraint_name' => 'UQ_cons_2', 'constraint_keys' => 'id, col1']],
+                [[
+                    'constraint_type' => 'UNIQUE (non-clustered)',
+                    'constraint_name' => 'UQ_cons_2', 'constraint_keys' => 'id, col1'
+                ]],
                 ['UQ_cons_2' => ['id', 'col1']]
             ],
             [
-                [['constraint_type' => 'UNIQUE (clustered)', 'constraint_name' => 'UQ_cons_3', 'constraint_keys' => 'id, col1, col2, col3']],
+                [[
+                    'constraint_type' => 'UNIQUE (clustered)',
+                    'constraint_name' => 'UQ_cons_3', 'constraint_keys' => 'id, col1, col2, col3'
+                ]],
                 ['UQ_cons_3' => ['id', 'col1', 'col2', 'col3']]
             ],
             [
@@ -89,5 +98,62 @@ class ConstraintLoaderTest extends TestCase
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->uniqueIndexes);
+    }
+
+    public function foreignKeyProvider()
+    {
+        return [
+            [
+                [[
+                    'constraint_type' => 'FOREIGN KEY',
+                    'constraint_name' => 'FK_my_fk1', 'constraint_keys' => 'local1_1'
+                ], [
+                    'constraint_type' => ' ',
+                    'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES testdb.dbo.tbl1 (for1_1)'
+                ]],
+                ['FK_my_fk1' => ['tbl1', 'local1_1' => 'for1_1']]
+            ],
+            [
+                [[
+                    'constraint_type' => 'FOREIGN KEY',
+                    'constraint_name' => 'FK_my_fk2', 'constraint_keys' => 'local2_1, local2_2'
+                ], [
+                    'constraint_type' => ' ',
+                    'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES testdb.dbo.tbl2 (for2_1, for2_2)'
+                ]],
+                ['FK_my_fk2' => ['tbl2', 'local2_1' => 'for2_1', 'local2_2' => 'for2_2']]
+            ],
+            [
+                [[
+                    'constraint_type' => 'FOREIGN KEY',
+                    'constraint_name' => 'FK_my_fk3', 'constraint_keys' => 'local3_ 1, local3_ 2'
+                ], [
+                    'constraint_type' => ' ',
+                    'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES tbl3 (for3_ 1, for3_2)'
+                ]],
+                ['FK_my_fk3' => ['tbl3', 'local3_ 1' => 'for3_ 1', 'local3_ 2' => 'for3_2']]
+            ],
+            [
+                [[
+                    'constraint_type' => 'FOREIGN KEY',
+                    'constraint_name' => 'FK_my_fk4', 'constraint_keys' => 'local4_1, local4_2, local4_3'
+                ], [
+                    'constraint_type' => ' ',
+                    'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES dbo.tbl 4_ (for4_1, for4_2, for4_3)'
+                ]],
+                ['FK_my_fk4' => ['tbl 4_', 'local4_1' => 'for4_1', 'local4_2' => 'for4_2', 'local4_3' => 'for4_3']]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider foreignKeyProvider
+     */
+    public function testLoadExtractsForeignKeys($dataRows, $expected)
+    {
+        $loader = new ConstraintLoader();
+        $loader->load($dataRows);
+        $this->assertTrue($loader->isLoaded);
+        $this->assertSame($expected, $loader->foreignKeys);
     }
 }

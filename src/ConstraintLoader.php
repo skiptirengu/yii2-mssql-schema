@@ -2,6 +2,7 @@
 
 namespace skiptirengu\mssql;
 
+use ArrayIterator;
 
 class ConstraintLoader extends BaseLoader
 {
@@ -12,24 +13,33 @@ class ConstraintLoader extends BaseLoader
     /**
      * @var array
      */
-    public $tableForeignKeys = [];
-    /**
-     * @var array
-     */
     public $defaultValues = [];
     /**
      * @var array
      */
     public $uniqueIndexes = [];
+    /**
+     * @var array
+     */
+    public $foreignKeys = [];
 
+    /**
+     * @inheritdoc
+     */
     public function doLoad(array $row)
     {
         $pksFound = false;
-        foreach ($row as $constraint) {
+        foreach ($row as $key => $constraint) {
+            if (empty($constraint['constraint_type']) || empty(trim($constraint['constraint_type']))) {
+                continue;
+            }
             if ($this->extractDefaultValue($constraint)) {
                 continue;
             }
             if ($this->extractUniqueIndex($constraint)) {
+                continue;
+            }
+            if ($this->extractForeignKeys($key, $row)) {
                 continue;
             }
             if ($pksFound === false) {
@@ -46,7 +56,7 @@ class ConstraintLoader extends BaseLoader
      */
     protected function extractDefaultValue(array $constraint)
     {
-        if ($found = preg_match('/^DEFAULT on column ([\w ]+)$/', $constraint['constraint_type'], $matches)) {
+        if ($found = preg_match('/^DEFAULT on column ([\w\s]+)$/', $constraint['constraint_type'], $matches)) {
             $this->defaultValues[$matches[1]] = $constraint['constraint_keys'];
         }
         return $found;
@@ -77,11 +87,57 @@ class ConstraintLoader extends BaseLoader
     protected function extractConstraint(array $constraint, $type)
     {
         if (strpos($constraint['constraint_type'], $type) === 0) {
-            return preg_split(
-                '/(,\s?)/', $constraint['constraint_keys'], 0, PREG_SPLIT_NO_EMPTY
-            );
+            return $this->splitColumns($constraint['constraint_keys']);
         }
         return false;
+    }
+
+    /**
+     * Split the comma separated columns, sanitazing white spaces.
+     *
+     * @param string $columns
+     * @return array
+     */
+    protected function splitColumns($columns)
+    {
+        return preg_split('/(,\s?)/', $columns, 0, PREG_SPLIT_NO_EMPTY);
+    }
+
+    /**
+     * Extract the columns of a given FOREIGN KEY constraint, if any.
+     *
+     * @param mixed $key
+     * @param array $row
+     * @return bool Whether the constraint is a FOREIGN KEY constraint.
+     */
+    protected function extractForeignKeys($key, array $row)
+    {
+        $iterator = new ArrayIterator($row);
+        $iterator->seek($key);
+        $current = $iterator->current();
+
+        if ($found = (strpos($current['constraint_type'], 'FOREIGN KEY') === 0)) {
+            $tableColumns = $this->splitColumns($current['constraint_keys']);
+            $fkConstraint = $current['constraint_name'];
+
+            // the next row points to the REFERENCES part of the constraint
+            $iterator->next();
+            $current = $iterator->current();
+            preg_match(
+                '/^REFERENCES (?:\w+\.)?(?:\w+\.)?([\w\s]+)\s\(([\w,\s]+)\)$/',
+                $current['constraint_keys'],
+                $matches
+            );
+            list(, $foreignTable, $foreignColumns) = $matches;
+            $foreignColumns = $this->splitColumns($foreignColumns);
+
+            $this->foreignKeys[$fkConstraint] = array_merge(
+                [$foreignTable],
+                array_combine($tableColumns, $foreignColumns)
+            );
+        }
+
+        return $found;
     }
 
     /**
