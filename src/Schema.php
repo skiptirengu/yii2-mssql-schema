@@ -19,6 +19,7 @@ class Schema extends BaseSchema
      * Exception thrown when trying to read a resulset without any fields
      */
     const NO_FIELDS_EXCEPTION = 'The active result for the query contains no fields';
+
     /**
      * @var string
      */
@@ -138,6 +139,36 @@ class Schema extends BaseSchema
         return $this->constraintLoader->isLoaded
             && $this->columnLoader->isLoaded
             && $this->identityLoader->isLoaded;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function findPrimaryKeys($table)
+    {
+        $table->primaryKey = $this->constraintLoader->tablePks;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function findColumns($table)
+    {
+        if (empty($this->columnLoader->tableColumns)) {
+            return false;
+        }
+        $this->columnLoader->setIdentityColumn($this->identityLoader);
+        $this->columnLoader->setDefaultValuesForColumns($this->constraintLoader);
+        $table->columns = $this->loadColumnSchema($this->columnLoader->tableColumns);
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function findForeignKeys($table)
+    {
+        $table->foreignKeys = $this->constraintLoader->foreignKeys;
     }
 
     /**
