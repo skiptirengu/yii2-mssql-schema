@@ -9,30 +9,43 @@ use skiptirengu\mssql\IdentityLoader;
 
 class ColumnLoaderTest extends TestCase
 {
-    public function testLoadColumn()
+    public function loadDataProvider()
     {
-        $dataRow = [
-            ['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no'],
-            ['Column_name' => 'int_col', 'Type' => 'int', 'Nullable' => 'no'],
-            ['Column_name' => 'smallint_col', 'Type' => 'smallint', 'yes', 'Nullable' => 'yes'],
-        ];
-        $expected = [
-            'id' => [
-                'column_name' => 'id', 'is_nullable' => 'NO',
-                'data_type' => 'int', 'is_identity' => null,
-                'comment' => '', 'column_default' => null
+        return [
+            [
+                [['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no']],
+                ['id' => [
+                    'column_name' => 'id', 'is_nullable' => 'NO',
+                    'data_type' => 'int', 'is_identity' => null,
+                    'comment' => '', 'column_default' => null
+                ]]
             ],
-            'int_col' => [
-                'column_name' => 'int_col', 'is_nullable' => 'NO',
-                'data_type' => 'int', 'is_identity' => null,
-                'comment' => '', 'column_default' => null
+
+            [
+                [['Column_name' => 'int_col', 'Type' => 'int', 'Nullable' => 'no']],
+                ['int_col' => [
+                    'column_name' => 'int_col', 'is_nullable' => 'NO',
+                    'data_type' => 'int', 'is_identity' => null,
+                    'comment' => '', 'column_default' => null
+                ]]
             ],
-            'smallint_col' => [
-                'column_name' => 'smallint_col', 'is_nullable' => 'YES',
-                'data_type' => 'smallint', 'is_identity' => null,
-                'comment' => '', 'column_default' => null
+
+            [
+                [['Column_name' => 'smallint_col', 'Type' => 'smallint', 'yes', 'Nullable' => 'yes']],
+                ['smallint_col' => [
+                    'column_name' => 'smallint_col', 'is_nullable' => 'YES',
+                    'data_type' => 'smallint', 'is_identity' => null,
+                    'comment' => '', 'column_default' => null
+                ]]
             ]
         ];
+    }
+
+    /**
+     * @dataProvider loadDataProvider
+     */
+    public function testLoadColumn($dataRow, $expected)
+    {
         $loader = new ColumnLoader();
         $this->assertFalse($loader->isLoaded);
         $loader->load($dataRow);
