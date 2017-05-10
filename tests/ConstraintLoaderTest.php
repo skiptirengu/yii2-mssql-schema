@@ -142,6 +142,25 @@ class ConstraintLoaderTest extends TestCase
                     'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES dbo.tbl 4_ (for4_1, for4_2, for4_3)'
                 ]],
                 ['FK_my_fk4' => ['tbl 4_', 'local4_1' => 'for4_1', 'local4_2' => 'for4_2', 'local4_3' => 'for4_3']]
+            ],
+            [
+                [[
+                    'constraint_type' => 'FOREIGN KEY',
+                    'constraint_name' => 'FK_my_fk5_1', 'constraint_keys' => 'local5_1'
+                ], [
+                    'constraint_type' => ' ',
+                    'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES tbl5 (for5_1)'
+                ], [
+                    'constraint_type' => 'FOREIGN KEY',
+                    'constraint_name' => 'FK_my_fk5_2', 'constraint_keys' => 'local5_2'
+                ], [
+                    'constraint_type' => ' ',
+                    'constraint_name' => ' ', 'constraint_keys' => 'REFERENCES tbl5 (for5_2)'
+                ]],
+                [
+                    'FK_my_fk5_1' => ['tbl5', 'local5_1' => 'for5_1'],
+                    'FK_my_fk5_2' => ['tbl5', 'local5_2' => 'for5_2']
+                ]
             ]
         ];
     }
