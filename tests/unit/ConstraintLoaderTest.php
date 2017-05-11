@@ -13,34 +13,38 @@ class ConstraintLoaderTest extends TestCase
         return [
             [
                 [['constraint_type' => 'DEFAULT on column time', 'constraint_keys' => '(\'2002-01-01 00:00:00\')']],
-                ['time' => '(\'2002-01-01 00:00:00\')']
+                ['time' => '2002-01-01 00:00:00']
             ],
             [
                 [['constraint_type' => 'DEFAULT on column space col', 'constraint_keys' => '(\'1\')']],
-                ['space col' => '(\'1\')',]
+                ['space col' => '1']
             ],
             [
                 [['constraint_type' => 'DEFAULT on column space col2 num', 'constraint_keys' => '(\'something\')']],
-                ['space col2 num' => '(\'something\')',]
+                ['space col2 num' => 'something']
             ],
             [
                 [['constraint_type' => 'DEFAULT on column Under_score', 'constraint_keys' => '(\'1.23\')']],
-                ['Under_score' => '(\'1.23\')']
+                ['Under_score' => '1.23']
             ],
             [
                 [['constraint_type' => 'DEFAULT on column column_column', 'constraint_keys' => '(\'42.42\')']],
-                ['column_column' => '(\'42.42\')',]
+                ['column_column' => '42.42']
             ],
             [
                 [['constraint_type' => 'DEFAULT on column column column column', 'constraint_keys' => '(NULL)']],
                 ['column column column' => '(NULL)']
             ],
             [
+                [['constraint_type' => 'DEFAULT on column new_line', 'constraint_keys' => "('new\nline')"]],
+                ['new_line' => "new\nline"]
+            ],
+            [
                 [
                     ['constraint_type' => 'DEFAULT on column foo', 'constraint_keys' => '(\'foo\')'],
                     ['constraint_type' => 'DEFAULT on column bar', 'constraint_keys' => '(\'bar\')'],
                 ],
-                ['foo' => '(\'foo\')', 'bar' => '(\'bar\')']
+                ['foo' => 'foo', 'bar' => 'bar']
             ]
         ];
     }

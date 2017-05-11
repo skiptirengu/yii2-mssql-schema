@@ -58,7 +58,11 @@ class ConstraintLoader extends BaseLoader
     protected function extractDefaultValue(array $constraint)
     {
         if ($found = preg_match('/^DEFAULT on column ([\w\s]+)$/', $constraint['constraint_type'], $matches)) {
-            $this->defaultValues[$matches[1]] = $constraint['constraint_keys'];
+            if (($default = $constraint['constraint_keys']) !== '(NULL)') {
+                preg_match("/^\('(.*)'\)$/s", $default, $defaultMatches);
+                $default = $defaultMatches[1];
+            }
+            $this->defaultValues[$matches[1]] = $default;
         }
         return $found;
     }
@@ -142,16 +146,6 @@ class ConstraintLoader extends BaseLoader
     }
 
     /**
-     * @param ColumnSchema $schema
-     */
-    public function setIsPrimaryKeyOnColumn(ColumnSchema $schema)
-    {
-        if (in_array($schema->name, $this->tablePks)) {
-            $schema->isPrimaryKey = true;
-        }
-    }
-
-    /**
      * Extract the primary key information for the given constraint, if any.
      *
      * @param array $constraint
@@ -163,5 +157,15 @@ class ConstraintLoader extends BaseLoader
             $this->tablePks = $pks;
         }
         return $pks !== false;
+    }
+
+    /**
+     * @param ColumnSchema $schema
+     */
+    public function setIsPrimaryKeyOnColumn(ColumnSchema $schema)
+    {
+        if (in_array($schema->name, $this->tablePks)) {
+            $schema->isPrimaryKey = true;
+        }
     }
 }
