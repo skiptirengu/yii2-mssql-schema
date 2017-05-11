@@ -19,10 +19,10 @@ class SchemaTest extends TestCase
 {
     public function testPrepareTableSchemaSkipsNoFieldsException()
     {
-        $reader = $this->getMockBuilder(DataReaderMock::className())->disableOriginalConstructor()->setMethods(['readAll', 'close'])->getMock();
+        $reader = $this->getMockBuilder(DataReader::className())->disableOriginalConstructor()->getMock();
         $reader->expects($this->once())->method('readAll')->willThrowException(new PDOException('SQLSTATE[IMSSP]: The active result for the query contains no fields.'));
         $reader->expects($this->once())->method('close');
-        $reader->init();
+        $reader->expects($this->once())->method('nextResult')->willReturn(false);
 
         $table = new TableSchema();
         $mock = $this->getMockBuilder(Schema::className())->setMethods(['createDataReader'])->getMock();
@@ -35,10 +35,10 @@ class SchemaTest extends TestCase
         $this->expectException(PDOException::class);
         $this->expectExceptionMessage('Another pdo exception');
 
-        $reader = $this->getMockBuilder(DataReaderMock::className())->disableOriginalConstructor()->setMethods(['readAll', 'close'])->getMock();
+        $reader = $this->getMockBuilder(DataReader::className())->disableOriginalConstructor()->getMock();
         $reader->expects($this->once())->method('readAll')->willThrowException(new PDOException('Another pdo exception'));
         $reader->expects($this->once())->method('close');
-        $reader->init();
+        $reader->expects($this->never())->method('nextResult')->willReturn(false);
 
         $table = new TableSchema();
         $mock = $this->getMockBuilder(Schema::className())->setMethods(['createDataReader'])->getMock();
@@ -51,10 +51,10 @@ class SchemaTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Kaboom!');
 
-        $reader = $this->getMockBuilder(DataReaderMock::className())->disableOriginalConstructor()->setMethods(['readAll', 'close'])->getMock();
-        $reader->init();
+        $reader = $this->getMockBuilder(DataReader::className())->disableOriginalConstructor()->getMock();
         $reader->expects($this->once())->method('readAll')->willThrowException(new RuntimeException('Kaboom!'));
         $reader->expects($this->once())->method('close');
+        $reader->expects($this->never())->method('nextResult')->willReturn(false);
 
         $table = new TableSchema();
         $mock = $this->getMockBuilder(Schema::className())->setMethods(['createDataReader'])->getMock();
@@ -86,36 +86,5 @@ class LoaderMock extends BaseLoader
     public function doLoad(array $row)
     {
         //
-    }
-}
-
-class DataReaderMock extends DataReader
-{
-    public $array = [];
-
-    /**
-     * @var \ArrayIterator
-     */
-    public $iterator;
-
-    public function init()
-    {
-        $this->iterator = new \ArrayIterator($this->array);
-    }
-
-    public function close()
-    {
-        //
-    }
-
-    public function readAll()
-    {
-        $this->iterator->current();
-    }
-
-    public function nextResult()
-    {
-        $this->iterator->next();
-        return $this->iterator->valid();
     }
 }
