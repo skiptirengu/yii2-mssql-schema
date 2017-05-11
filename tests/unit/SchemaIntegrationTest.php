@@ -5,6 +5,7 @@ namespace skiptirengu\mssql\tests\unit;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use skiptirengu\mssql\Schema;
+use Yii;
 use yii\console\Application;
 use yii\db\Connection;
 
@@ -35,7 +36,7 @@ class SchemaIntegrationTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->app = new Application([
+        Yii::$app = $this->app = new Application([
             'id' => 'schema-test-app',
             'basePath' => __DIR__,
             'components' => [
@@ -55,12 +56,30 @@ class SchemaIntegrationTest extends TestCase
         ]);
     }
 
-    public function testGetDb()
+    public function testSchema()
     {
-        $this->assertInstanceOf(Connection::class, $this->app->getDb());
-        $this->app->getDb()->open();
-        $this->app->getDb()->close();
-        $schema = $this->app->getDb()->getSchema()->getTableSchema('testschema1');
-        $this->assertNotNull($schema);
+        $schema = $this->app->getDb()->getTableSchema('testschema1', true);
+        $this->assertSame(
+            ['foreign_key1', 'foreign_key2', 'varchar_col', 'varchar_col2', 'integer_col', 'decimal_col'],
+            $schema->getColumnNames()
+        );
+        $this->assertSame(
+            ['foreign_key1', 'foreign_key2'],
+            $schema->primaryKey
+        );
+        $this->assertSame(null, $schema->getColumn('varchar_col')->defaultValue);
+        $this->assertSame(1.2, $schema->getColumn('decimal_col')->defaultValue);
+        $this->assertSame(0, $schema->getColumn('integer_col')->defaultValue);
+        $this->assertSame('text', $schema->getColumn('varchar_col2')->defaultValue);
+        $this->assertFalse($schema->getColumn('foreign_key1')->allowNull);
+        $this->assertFalse($schema->getColumn('foreign_key2')->allowNull);
+        $this->assertTrue($schema->getColumn('varchar_col')->allowNull);
+        $this->assertTrue($schema->getColumn('varchar_col2')->allowNull);
+        $this->assertTrue($schema->getColumn('integer_col')->allowNull);
+        $this->assertFalse($schema->getColumn('decimal_col')->allowNull);
+        $this->assertTrue($schema->getColumn('foreign_key1')->autoIncrement);
+        $this->assertSame([], $schema->foreignKeys);
+
+        //('1.23')('1.23')
     }
 }

@@ -6,6 +6,7 @@ CREATE TABLE [dbo].[testschema1] (
   [foreign_key1] [int] IDENTITY NOT NULL,
   [foreign_key2] [int] NOT NULL,
   [varchar_col] [varchar](100) NULL DEFAULT NULL,
+  [varchar_col2] [varchar](100) NULL DEFAULT 'text',
   [integer_col] [int] NULL DEFAULT 0,
   [decimal_col] [decimal](5,2) NOT NULL DEFAULT 1.2,
   CONSTRAINT [PK_testschema1] PRIMARY KEY CLUSTERED (
