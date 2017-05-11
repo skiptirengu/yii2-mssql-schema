@@ -50,6 +50,7 @@ class Schema extends BaseSchema
         } else {
             $table = null;
         }
+        $this->resetTableInfo();
 
         return $table;
     }
