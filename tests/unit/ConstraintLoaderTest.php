@@ -40,6 +40,14 @@ class ConstraintLoaderTest extends TestCase
                 ['new_line' => "new\nline"]
             ],
             [
+                [['constraint_type' => 'DEFAULT on column integer_number', 'constraint_keys' => "((42))"]],
+                ['integer_number' => '42']
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column double_number', 'constraint_keys' => "((42.2))"]],
+                ['double_number' => '42.2']
+            ],
+            [
                 [
                     ['constraint_type' => 'DEFAULT on column foo', 'constraint_keys' => '(\'foo\')'],
                     ['constraint_type' => 'DEFAULT on column bar', 'constraint_keys' => '(\'bar\')'],
