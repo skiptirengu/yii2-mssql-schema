@@ -151,12 +151,54 @@ class Schema extends BaseSchema
         $this->columnLoader->setDefaultValuesForColumns($this->constraintLoader);
         $this->columnLoader->setPrimaryKeys($this->constraintLoader);
 
-        foreach ($this->columnLoader->tableColumns as $name => $column) {
+        foreach ($this->columnLoader->tableColumns as $column) {
             $column = $this->loadColumnSchema($column);
-            $table->columns[$name] = $column;
+            $table->columns[$column->name] = $column;
         }
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function loadColumnSchema($info)
+    {
+        $column = $this->createColumnSchema();
+
+        $column->name = $info['Column_name'];
+        $column->allowNull = $info['Nullable'];
+        $column->dbType = $info['Type'];
+        $column->enumValues = [];
+        $column->isPrimaryKey = $info['Is_primary'];
+        $column->autoIncrement = $info['Is_identity'];
+        $column->unsigned = false;
+        $column->comment = '';
+        $column->size = (int) $info['Length'];
+        $column->precision = (int) $info['Prec'];
+        $column->scale = (int) $info['Scale'];
+
+        $isBit = $column->dbType === 'bit';
+        if ($column->size === 1 && ($column->dbType === 'tinyint' || $isBit)) {
+            $column->type = 'boolean';
+        } elseif ($isBit && $column->size > 32) {
+            $column->type = 'bigint';
+        } elseif ($isBit && $column->size === 32) {
+            $column->type = 'integer';
+        } elseif (isset($this->typeMap[$column->dbType])) {
+            $column->type = $this->typeMap[$column->dbType];
+        } else {
+            $column->type = self::TYPE_STRING;
+        }
+
+        $column->phpType = $this->getColumnPhpType($column);
+
+        $default = $info['Column_default'];
+        if (!$column->isPrimaryKey && ($column->type !== 'timestamp' || $default !== 'CURRENT_TIMESTAMP')) {
+            $column->defaultValue = $column->phpTypecast($default);
+        }
+
+        return $column;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace skiptirengu\mssql\tests\unit;
 
+use Exception;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use skiptirengu\mssql\Schema;
@@ -26,11 +27,14 @@ class SchemaIntegrationTest extends TestCase
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-        $sql = file_get_contents(TESTS_BASE_PATH . '/data/tables.sql');
         $pdo = new PDO(self::$conStr, self::$conUsr, self::$conPwd);
-        foreach (explode('--', $sql) as $statement) {
-            $pdo->exec($statement);
+        $sql = explode('--', file_get_contents(TESTS_BASE_PATH . '/data/tables.sql'));
+        foreach ($sql as $statement) {
+            if (!$pdo->prepare($statement)->execute()) {
+                throw new Exception("Unable to execute statement $statement");
+            }
         }
+
     }
 
     public function setUp()
@@ -68,7 +72,7 @@ class SchemaIntegrationTest extends TestCase
             $schema->primaryKey
         );
         $this->assertSame(null, $schema->getColumn('varchar_col')->defaultValue);
-        $this->assertSame(1.2, $schema->getColumn('decimal_col')->defaultValue);
+        $this->assertSame('1.2', $schema->getColumn('decimal_col')->defaultValue);
         $this->assertSame(0, $schema->getColumn('integer_col')->defaultValue);
         $this->assertSame('text', $schema->getColumn('varchar_col2')->defaultValue);
         $this->assertFalse($schema->getColumn('foreign_key1')->allowNull);
