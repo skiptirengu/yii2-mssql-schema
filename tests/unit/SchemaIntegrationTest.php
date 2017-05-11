@@ -60,30 +60,115 @@ class SchemaIntegrationTest extends TestCase
         ]);
     }
 
-    public function testSchema()
+    public function columnsProvider()
+    {
+        return [
+            [[
+                'column' => 'foreign_key1',
+                'allowNull' => false,
+                'phpType' => 'integer',
+                'type' => 'integer',
+                'dbType' => 'int',
+                'autoIncrement' => true,
+                'isPrimaryKey' => true,
+                'defaultValue' => null
+            ]],
+            [[
+                'column' => 'foreign_key2',
+                'allowNull' => false,
+                'phpType' => 'integer',
+                'type' => 'integer',
+                'dbType' => 'int',
+                'autoIncrement' => null,
+                'isPrimaryKey' => true,
+                'defaultValue' => null
+            ]],
+            [[
+                'column' => 'varchar_col',
+                'allowNull' => true,
+                'phpType' => 'string',
+                'type' => 'string',
+                'dbType' => 'varchar',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => null
+            ]],
+            [[
+                'column' => 'varchar_col2',
+                'allowNull' => true,
+                'phpType' => 'string',
+                'type' => 'string',
+                'dbType' => 'varchar',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => 'text'
+            ]],
+            [[
+                'column' => 'integer_col',
+                'allowNull' => true,
+                'phpType' => 'integer',
+                'type' => 'bigint',
+                'dbType' => 'bigint',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => 0
+            ]],
+            [[
+                'column' => 'decimal_col',
+                'allowNull' => false,
+                'phpType' => 'string',
+                'type' => 'decimal',
+                'dbType' => 'decimal',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => '1.2'
+            ]],
+            [[
+                'column' => 'float_col',
+                'allowNull' => true,
+                'phpType' => 'double',
+                'type' => 'float',
+                'dbType' => 'float',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => null
+            ]],
+            [[
+                'column' => 'tiny_col',
+                'allowNull' => false,
+                'phpType' => 'integer',
+                'type' => 'smallint',
+                'dbType' => 'tinyint',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => null
+            ]],
+            [[
+                'column' => 'bit_col',
+                'allowNull' => false,
+                'phpType' => 'boolean',
+                'type' => 'boolean',
+                'dbType' => 'bit',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => null
+            ]],
+        ];
+    }
+
+    /**
+     * @dataProvider columnsProvider
+     */
+    public function testColumns($info)
     {
         $schema = $this->app->getDb()->getTableSchema('testschema1', true);
-        $this->assertSame(
-            ['foreign_key1', 'foreign_key2', 'varchar_col', 'varchar_col2', 'integer_col', 'decimal_col'],
-            $schema->getColumnNames()
-        );
-        $this->assertSame(
-            ['foreign_key1', 'foreign_key2'],
-            $schema->primaryKey
-        );
-        $this->assertSame(null, $schema->getColumn('varchar_col')->defaultValue);
-        $this->assertSame('1.2', $schema->getColumn('decimal_col')->defaultValue);
-        $this->assertSame(0, $schema->getColumn('integer_col')->defaultValue);
-        $this->assertSame('text', $schema->getColumn('varchar_col2')->defaultValue);
-        $this->assertFalse($schema->getColumn('foreign_key1')->allowNull);
-        $this->assertFalse($schema->getColumn('foreign_key2')->allowNull);
-        $this->assertTrue($schema->getColumn('varchar_col')->allowNull);
-        $this->assertTrue($schema->getColumn('varchar_col2')->allowNull);
-        $this->assertTrue($schema->getColumn('integer_col')->allowNull);
-        $this->assertFalse($schema->getColumn('decimal_col')->allowNull);
-        $this->assertTrue($schema->getColumn('foreign_key1')->autoIncrement);
-        $this->assertSame([], $schema->foreignKeys);
-
-        //('1.23')('1.23')
+        $column = $schema->getColumn($info['column']);
+        $this->assertSame($info['allowNull'], $column->allowNull, 'allowNull does not match');
+        $this->assertSame($info['phpType'], $column->phpType, 'phpType does not match');
+        $this->assertSame($info['type'], $column->type, 'type does not match');
+        $this->assertSame($info['dbType'], $column->dbType, 'dbType does not match');
+        $this->assertSame($info['autoIncrement'], $column->autoIncrement, 'autoIncrement does not match');
+        $this->assertSame($info['isPrimaryKey'], $column->isPrimaryKey, 'isPrimaryKey does not match');
+        $this->assertSame($info['defaultValue'], $column->defaultValue, 'defaultValue does not match');
     }
 }

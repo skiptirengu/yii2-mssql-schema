@@ -166,24 +166,29 @@ class Schema extends BaseSchema
     {
         $column = $this->createColumnSchema();
 
+        $column->enumValues = [];
+        $column->unsigned = false;
+        $column->comment = '';
+
         $column->name = $info['Column_name'];
         $column->allowNull = $info['Nullable'];
         $column->dbType = $info['Type'];
-        $column->enumValues = [];
         $column->isPrimaryKey = $info['Is_primary'];
         $column->autoIncrement = $info['Is_identity'];
-        $column->unsigned = false;
-        $column->comment = '';
-        $column->size = (int) $info['Length'];
-        $column->precision = (int) $info['Prec'];
-        $column->scale = (int) $info['Scale'];
+        $column->scale = (int)$info['Scale'];
 
-        $isBit = $column->dbType === 'bit';
-        if ($column->size === 1 && ($column->dbType === 'tinyint' || $isBit)) {
+        if (trim($info['Prec']) !== '') {
+            $column->size = $column->precision = (int)$info['Prec'];
+        } else {
+            $column->size = (int)$info['Length'];
+        }
+
+        $isBitField = $column->dbType === 'bit';
+        if ($column->size === 1 && ($column->dbType === 'tinyint' || $isBitField)) {
             $column->type = 'boolean';
-        } elseif ($isBit && $column->size > 32) {
+        } elseif ($isBitField && $column->size > 32) {
             $column->type = 'bigint';
-        } elseif ($isBit && $column->size === 32) {
+        } elseif ($isBitField && $column->size === 32) {
             $column->type = 'integer';
         } elseif (isset($this->typeMap[$column->dbType])) {
             $column->type = $this->typeMap[$column->dbType];

@@ -12,9 +12,8 @@ CREATE TABLE [dbo].[testschema1] (
   [varchar_col2] [VARCHAR](100)  NULL     DEFAULT 'text',
   [integer_col]  [BIGINT]        NULL     DEFAULT 0,
   [decimal_col]  [DECIMAL](5, 2) NOT NULL DEFAULT 1.2,
-  [double_col]   [FLOAT]         NULL,
+  [float_col]    [FLOAT]         NULL,
   [tiny_col]     [TINYINT]       NOT NULL,
-  [tiny_col2]    [TINYINT]       NOT NULL,
   [bit_col]      [BIT]           NOT NULL,
   CONSTRAINT [PK_testschema1] PRIMARY KEY CLUSTERED (
     [foreign_key1], [foreign_key2] ASC
