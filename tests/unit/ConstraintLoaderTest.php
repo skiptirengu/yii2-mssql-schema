@@ -175,4 +175,36 @@ class ConstraintLoaderTest extends TestCase
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->foreignKeys);
     }
+
+    public function pksProvider()
+    {
+        return [
+            [
+                [['constraint_type' => 'PRIMARY KEY (clustered)', 'constraint_keys' => 'id, col1']],
+                ['id', 'col1']
+            ],
+            [
+                [['constraint_type' => 'PRIMARY KEY (clustered)', 'constraint_keys' => 'id2, col_ 2']],
+                ['id2', 'col_ 2']
+            ],
+            [
+                [
+                    ['constraint_type' => 'PRIMARY KEY (clustered)', 'constraint_keys' => 'id3, col3'],
+                    ['constraint_type' => 'PRIMARY KEY (clustered)', 'constraint_keys' => 'id4, col4'],
+                ],
+                ['id3', 'col3']
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider pksProvider
+     */
+    public function testLoadExtractsPks($dataRows, $expected)
+    {
+        $loader = new ConstraintLoader();
+        $loader->load($dataRows);
+        $this->assertTrue($loader->isLoaded);
+        $this->assertSame($expected, $loader->tablePks);
+    }
 }
