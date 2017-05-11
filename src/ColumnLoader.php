@@ -15,15 +15,9 @@ class ColumnLoader extends BaseLoader
     public function doLoad(array $row)
     {
         foreach ($row as $column) {
-            $columnName = $column['Column_name'];
-            $this->tableColumns[$columnName] = [
-                'column_name' => $columnName,
-                'is_nullable' => strtoupper($column['Nullable']),
-                'data_type' => $column['Type'],
-                'is_identity' => null,
-                'comment' => '',
-                'column_default' => null
-            ];
+            $this->tableColumns[$column['Column_name']] = array_merge(
+                ['Column_default' => null, 'Is_identity' => null], $column
+            );
         }
     }
 
@@ -36,7 +30,7 @@ class ColumnLoader extends BaseLoader
     public function setIdentityColumn(IdentityLoader $loader)
     {
         if (isset($this->tableColumns[$loader->identityColumn])) {
-            $this->tableColumns[$loader->identityColumn]['is_identity'] = 1;
+            $this->tableColumns[$loader->identityColumn]['Is_identity'] = 1;
         }
     }
 
@@ -49,7 +43,7 @@ class ColumnLoader extends BaseLoader
     public function setDefaultValuesForColumns(ConstraintLoader $loader)
     {
         foreach ($loader->defaultValues as $column => $defaultValue) {
-            $this->tableColumns[$column]['column_default'] = $defaultValue;
+            $this->tableColumns[$column]['Column_default'] = $defaultValue;
         }
     }
 }

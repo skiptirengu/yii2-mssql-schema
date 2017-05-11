@@ -9,60 +9,36 @@ use skiptirengu\mssql\IdentityLoader;
 
 class ColumnLoaderTest extends TestCase
 {
-    public function loadDataProvider()
+    public function testLoadColumn()
     {
-        return [
-            [
-                [['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no']],
-                ['id' => [
-                    'column_name' => 'id', 'is_nullable' => 'NO',
-                    'data_type' => 'int', 'is_identity' => null,
-                    'comment' => '', 'column_default' => null
-                ]]
-            ],
-
-            [
-                [['Column_name' => 'int_col', 'Type' => 'int', 'Nullable' => 'no']],
-                ['int_col' => [
-                    'column_name' => 'int_col', 'is_nullable' => 'NO',
-                    'data_type' => 'int', 'is_identity' => null,
-                    'comment' => '', 'column_default' => null
-                ]]
-            ],
-
-            [
-                [['Column_name' => 'smallint_col', 'Type' => 'smallint', 'yes', 'Nullable' => 'yes']],
-                ['smallint_col' => [
-                    'column_name' => 'smallint_col', 'is_nullable' => 'YES',
-                    'data_type' => 'smallint', 'is_identity' => null,
-                    'comment' => '', 'column_default' => null
-                ]]
-            ]
+        $dataRow = [
+            'Column_name' => 'foreign_key2', 'Type' => 'int', 'Computed' => 'no', 'Length' => '4',
+            'Prec' => '10', 'Scale' => '0', 'Nullable' => 'no', 'TrimTrailingBlanks' => '(n/a)',
+            'FixedLenNullInSource' => '(n/a)', 'Collation' => '[NULL]',
         ];
-    }
-
-    /**
-     * @dataProvider loadDataProvider
-     */
-    public function testLoadColumn($dataRow, $expected)
-    {
+        $expected = [
+            'Column_default' => null, 'Is_identity' => null, 'Column_name' => 'foreign_key2',
+            'Type' => 'int', 'Computed' => 'no', 'Length' => '4', 'Prec' => '10', 'Scale' => '0',
+            'Nullable' => 'no', 'TrimTrailingBlanks' => '(n/a)',
+            'FixedLenNullInSource' => '(n/a)', 'Collation' => '[NULL]',
+        ];
         $loader = new ColumnLoader();
         $this->assertFalse($loader->isLoaded);
-        $loader->load($dataRow);
+        $loader->load([$dataRow]);
         $this->assertTrue($loader->isLoaded);
-        $this->assertSame($expected, $loader->tableColumns);
+        $this->assertSame(['foreign_key2' => $expected], $loader->tableColumns);
     }
 
     public function testSetIdentityColumn()
     {
         $loader = new ColumnLoader();
         $loader->load([['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no']]);
-        $this->assertNull($loader->tableColumns['id']['is_identity']);
+        $this->assertNull($loader->tableColumns['id']['Is_identity']);
 
         $identityLoader = new IdentityLoader();
         $identityLoader->identityColumn = 'id';
         $loader->setIdentityColumn($identityLoader);
-        $this->assertSame(1, $loader->tableColumns['id']['is_identity']);
+        $this->assertSame(1, $loader->tableColumns['id']['Is_identity']);
     }
 
     public function testSetDefaultValuesForColumns()
@@ -72,8 +48,8 @@ class ColumnLoaderTest extends TestCase
             ['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no'],
             ['Column_name' => 'int_col', 'Type' => 'int', 'Nullable' => 'no'],
         ]);
-        $this->assertNull($loader->tableColumns['id']['column_default']);
-        $this->assertNull($loader->tableColumns['int_col']['column_default']);
+        $this->assertNull($loader->tableColumns['id']['Column_default']);
+        $this->assertNull($loader->tableColumns['int_col']['Column_default']);
 
         $constraintLoader = new ConstraintLoader();
         $constraintLoader->defaultValues = [
@@ -81,7 +57,7 @@ class ColumnLoaderTest extends TestCase
             'int_col' => 42
         ];
         $loader->setDefaultValuesForColumns($constraintLoader);
-        $this->assertSame(123, $loader->tableColumns['id']['column_default']);
-        $this->assertSame(42, $loader->tableColumns['int_col']['column_default']);
+        $this->assertSame(123, $loader->tableColumns['id']['Column_default']);
+        $this->assertSame(42, $loader->tableColumns['int_col']['Column_default']);
     }
 }
