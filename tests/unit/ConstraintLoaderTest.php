@@ -63,6 +63,7 @@ class ConstraintLoaderTest extends TestCase
     public function testLoadExtractsDefaultValues($dataRows, $expected)
     {
         $loader = new ConstraintLoader();
+        $this->assertFalse($loader->isLoaded);
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->defaultValues);
@@ -108,6 +109,7 @@ class ConstraintLoaderTest extends TestCase
     public function testLoadExtractsUniqueIndexes($dataRows, $expected)
     {
         $loader = new ConstraintLoader();
+        $this->assertFalse($loader->isLoaded);
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->uniqueIndexes);
@@ -184,6 +186,7 @@ class ConstraintLoaderTest extends TestCase
     public function testLoadExtractsForeignKeys($dataRows, $expected)
     {
         $loader = new ConstraintLoader();
+        $this->assertFalse($loader->isLoaded);
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->foreignKeys);
@@ -216,6 +219,7 @@ class ConstraintLoaderTest extends TestCase
     public function testLoadExtractsPks($dataRows, $expected)
     {
         $loader = new ConstraintLoader();
+        $this->assertFalse($loader->isLoaded);
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->tablePks);
