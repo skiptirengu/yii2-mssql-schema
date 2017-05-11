@@ -17,6 +17,15 @@ use yii\di\Container;
 
 class SchemaTest extends TestCase
 {
+    public function testLoadTableSchemaFail()
+    {
+        $mock = $this->getMockBuilder(Schema::className())->setMethods(['prepareTableSchema'])->getMock();
+        $mock->constraintLoader = new ConstraintLoader();
+        $mock->columnLoader = new ColumnLoader();
+        $mock->identityLoader = new IdentityLoader();
+        $this->assertNull($mock->loadTableSchema('foo'));
+    }
+
     public function testPrepareTableSchemaSkipsNoFieldsException()
     {
         $reader = $this->getMockBuilder(DataReader::className())->disableOriginalConstructor()->getMock();
