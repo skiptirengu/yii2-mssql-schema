@@ -15,8 +15,9 @@ class ColumnLoader extends BaseLoader
     public function doLoad(array $row)
     {
         foreach ($row as $column) {
+            $column['Nullable'] = $column['Nullable'] === 'yes';
             $this->tableColumns[$column['Column_name']] = array_merge(
-                ['Column_default' => null, 'Is_identity' => false, 'Is_primary' => false],
+                ['Column_default' => null, 'Is_identity' => null, 'Is_primary' => null],
                 $column
             );
         }

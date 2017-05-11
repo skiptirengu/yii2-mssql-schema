@@ -25,15 +25,15 @@ class ColumnLoaderTest extends TestCase
         ];
         $expected = [
             'Column_default' => null,
-            'Is_identity' => false,
-            'Is_primary' => false,
+            'Is_identity' => null,
+            'Is_primary' => null,
             'Column_name' => 'foreign_key2',
             'Type' => 'int',
             'Computed' => 'no',
             'Length' => '4',
             'Prec' => '10',
             'Scale' => '0',
-            'Nullable' => 'no',
+            'Nullable' => false,
             'TrimTrailingBlanks' => '(n/a)',
             'FixedLenNullInSource' => '(n/a)',
             'Collation' => '[NULL]',
@@ -49,12 +49,12 @@ class ColumnLoaderTest extends TestCase
     {
         $loader = new ColumnLoader();
         $loader->load([['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no']]);
-        $this->assertFalse($loader->tableColumns['id']['Is_identity']);
+        $this->assertNull($loader->tableColumns['id']['Is_identity']);
 
         $identityLoader = new IdentityLoader();
         $identityLoader->identityColumn = 'id';
         $loader->setIdentityColumn($identityLoader);
-        $this->assertSame(true, $loader->tableColumns['id']['Is_identity']);
+        $this->assertTrue($loader->tableColumns['id']['Is_identity']);
     }
 
     public function testSetDefaultValuesForColumns()
@@ -81,17 +81,29 @@ class ColumnLoaderTest extends TestCase
     {
         $loader = new ColumnLoader([
             'tableColumns' => [
-                'table_id' => ['Column_name' => 'table_id', 'Is_primary' => false],
-                'not_id' => ['Column_name' => 'not_id', 'Is_primary' => false],
-                'id' => ['Column_name' => 'id', 'Is_primary' => false],
+                'table_id' => [
+                    'Column_name' => 'table_id',
+                    'Is_primary' => null,
+                    'Nullable' => 'yes'
+                ],
+                'not_id' => [
+                    'Column_name' => 'not_id',
+                    'Is_primary' => null,
+                    'Nullable' => 'yes'
+                ],
+                'id' => [
+                    'Column_name' => 'id',
+                    'Is_primary' => null,
+                    'Nullable' => 'yes'
+                ],
             ]
         ]);
-        $this->assertFalse($loader->tableColumns['table_id']['Is_primary']);
-        $this->assertFalse($loader->tableColumns['not_id']['Is_primary']);
-        $this->assertFalse($loader->tableColumns['id']['Is_primary']);
+        $this->assertNull($loader->tableColumns['table_id']['Is_primary']);
+        $this->assertNull($loader->tableColumns['not_id']['Is_primary']);
+        $this->assertNull($loader->tableColumns['id']['Is_primary']);
         $loader->setPrimaryKeys(new ConstraintLoader(['tablePks' => ['table_id', 'id']]));
         $this->assertTrue($loader->tableColumns['table_id']['Is_primary']);
         $this->assertTrue($loader->tableColumns['id']['Is_primary']);
-        $this->assertFalse($loader->tableColumns['not_id']['Is_primary']);
+        $this->assertNull($loader->tableColumns['not_id']['Is_primary']);
     }
 }
