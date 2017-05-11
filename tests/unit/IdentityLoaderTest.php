@@ -1,6 +1,6 @@
 <?php
 
-namespace skiptirengu\mssql\tests;
+namespace skiptirengu\mssql\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use skiptirengu\mssql\IdentityLoader;

@@ -1,6 +1,6 @@
 <?php
 
-namespace skiptirengu\mssql\tests;
+namespace skiptirengu\mssql\tests\unit;
 
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -8,6 +8,9 @@ use skiptirengu\mssql\Schema;
 use yii\console\Application;
 use yii\db\Connection;
 
+/**
+ * @group integration
+ */
 class SchemaIntegrationTest extends TestCase
 {
     protected static $conStr = 'sqlsrv:Server=localhost;Database=testdb';

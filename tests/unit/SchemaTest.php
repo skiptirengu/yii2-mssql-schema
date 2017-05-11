@@ -1,6 +1,6 @@
 <?php
 
-namespace skiptirengu\mssql\tests;
+namespace skiptirengu\mssql\tests\unit;
 
 use PDOException;
 use PHPUnit\Framework\TestCase;
