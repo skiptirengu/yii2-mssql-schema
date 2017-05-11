@@ -146,13 +146,13 @@ class Schema extends BaseSchema
         if (empty($this->columnLoader->tableColumns)) {
             return false;
         }
-
         $this->columnLoader->setIdentityColumn($this->identityLoader);
         $this->columnLoader->setDefaultValuesForColumns($this->constraintLoader);
-        foreach ($this->columnLoader->tableColumns as $columnName => $column) {
-            $table->columns[$columnName] = $this->loadColumnSchema($column);
+        foreach ($this->columnLoader->tableColumns as $name => $column) {
+            $column = $this->loadColumnSchema($column);
+            $this->constraintLoader->setIsPrimaryKeyOnColumn($column);
+            $table->columns[$name] = $column;
         }
-
         return true;
     }
 

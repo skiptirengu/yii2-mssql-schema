@@ -4,6 +4,7 @@ namespace skiptirengu\mssql\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use skiptirengu\mssql\ConstraintLoader;
+use yii\db\ColumnSchema;
 
 class ConstraintLoaderTest extends TestCase
 {
@@ -206,5 +207,22 @@ class ConstraintLoaderTest extends TestCase
         $loader->load($dataRows);
         $this->assertTrue($loader->isLoaded);
         $this->assertSame($expected, $loader->tablePks);
+    }
+
+    public function testSetPrimaryKeyOnColumn()
+    {
+        $loader = new ConstraintLoader(['tablePks' => ['table_id']]);
+
+        $column = new ColumnSchema();
+        $column->name = 'table_id';
+        $this->assertNull($column->isPrimaryKey);
+        $loader->setIsPrimaryKeyOnColumn($column);
+        $this->assertTrue($column->isPrimaryKey);
+
+        $column = new ColumnSchema();
+        $column->name = 'not_id';
+        $this->assertNull($column->isPrimaryKey);
+        $loader->setIsPrimaryKeyOnColumn($column);
+        $this->assertNull($column->isPrimaryKey);
     }
 }

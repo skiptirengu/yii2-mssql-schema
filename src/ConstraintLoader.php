@@ -3,6 +3,7 @@
 namespace skiptirengu\mssql;
 
 use ArrayIterator;
+use yii\db\ColumnSchema;
 
 class ConstraintLoader extends BaseLoader
 {
@@ -138,6 +139,16 @@ class ConstraintLoader extends BaseLoader
         }
 
         return $found;
+    }
+
+    /**
+     * @param ColumnSchema $schema
+     */
+    public function setIsPrimaryKeyOnColumn(ColumnSchema $schema)
+    {
+        if (in_array($schema->name, $this->tablePks)) {
+            $schema->isPrimaryKey = true;
+        }
     }
 
     /**
