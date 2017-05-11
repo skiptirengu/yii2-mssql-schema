@@ -65,23 +65,23 @@ class SchemaTest extends TestCase
     public function testExtractData()
     {
         Yii::$container = new Container();
-        Yii::$container->set(ColumnLoader::class, LoaderMock::class);
-        Yii::$container->set(IdentityLoader::class, LoaderMock::class);
-        Yii::$container->set(ConstraintLoader::class, LoaderMock::class);
+        Yii::$container->set(ColumnLoader::class, LoaderStub::class);
+        Yii::$container->set(IdentityLoader::class, LoaderStub::class);
+        Yii::$container->set(ConstraintLoader::class, LoaderStub::class);
 
         $schema = new Schema();
         $schema->createLoaders();
         $this->assertFalse($schema->extractData([['Name' => 'name']]));
         $this->assertFalse($schema->extractData([['Column_name' => 'colname']]));
-        $this->assertInstanceOf(LoaderMock::class, $schema->columnLoader);
+        $this->assertInstanceOf(LoaderStub::class, $schema->columnLoader);
         $this->assertFalse($schema->extractData([['Identity' => 'id']]));
-        $this->assertInstanceOf(LoaderMock::class, $schema->identityLoader);
+        $this->assertInstanceOf(LoaderStub::class, $schema->identityLoader);
         $this->assertTrue($schema->extractData([['constraint_type' => 'type']]));
-        $this->assertInstanceOf(LoaderMock::class, $schema->constraintLoader);
+        $this->assertInstanceOf(LoaderStub::class, $schema->constraintLoader);
     }
 }
 
-class LoaderMock extends BaseLoader
+class LoaderStub extends BaseLoader
 {
     public function doLoad(array $row)
     {
