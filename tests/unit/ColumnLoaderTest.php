@@ -47,10 +47,12 @@ class ColumnLoaderTest extends TestCase
 
     public function testSetIdentityColumn()
     {
-        $loader = new ColumnLoader();
-        $loader->load([['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no']]);
+        $loader = new ColumnLoader([
+            'tableColumns' => [
+                'id' => ['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no', 'Is_identity' => null]
+            ]
+        ]);
         $this->assertNull($loader->tableColumns['id']['Is_identity']);
-
         $identityLoader = new IdentityLoader();
         $identityLoader->identityColumn = 'id';
         $loader->setIdentityColumn($identityLoader);
@@ -59,19 +61,17 @@ class ColumnLoaderTest extends TestCase
 
     public function testSetDefaultValuesForColumns()
     {
-        $loader = new ColumnLoader();
-        $loader->load([
-            ['Column_name' => 'id', 'Type' => 'int', 'Nullable' => 'no'],
-            ['Column_name' => 'int_col', 'Type' => 'int', 'Nullable' => 'no'],
+        $loader = new ColumnLoader([
+            'tableColumns' => [
+                'id' => ['Column_name' => 'id', 'Type' => 'int', 'Column_default' => null],
+                'int_col' => ['Column_name' => 'int_col', 'Type' => 'int', 'Column_default' => null],
+            ]
         ]);
         $this->assertNull($loader->tableColumns['id']['Column_default']);
         $this->assertNull($loader->tableColumns['int_col']['Column_default']);
-
-        $constraintLoader = new ConstraintLoader();
-        $constraintLoader->defaultValues = [
-            'id' => 123,
-            'int_col' => 42
-        ];
+        $constraintLoader = new ConstraintLoader([
+            'defaultValues' => ['id' => 123, 'int_col' => 42]
+        ]);
         $loader->setDefaultValuesForColumns($constraintLoader);
         $this->assertSame(123, $loader->tableColumns['id']['Column_default']);
         $this->assertSame(42, $loader->tableColumns['int_col']['Column_default']);
