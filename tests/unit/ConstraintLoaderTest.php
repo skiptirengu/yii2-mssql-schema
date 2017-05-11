@@ -33,7 +33,7 @@ class ConstraintLoaderTest extends TestCase
             ],
             [
                 [['constraint_type' => 'DEFAULT on column column column column', 'constraint_keys' => '(NULL)']],
-                ['column column column' => '(NULL)']
+                ['column column column' => null]
             ],
             [
                 [['constraint_type' => 'DEFAULT on column new_line', 'constraint_keys' => "('new\nline')"]],
