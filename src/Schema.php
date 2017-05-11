@@ -4,6 +4,7 @@ namespace skiptirengu\mssql;
 
 use Exception;
 use PDOException;
+use Yii;
 use yii\db\mssql\Schema as BaseSchema;
 use yii\db\mssql\TableSchema;
 
@@ -20,18 +21,6 @@ class Schema extends BaseSchema
      */
     const NO_FIELDS_EXCEPTION = 'The active result for the query contains no fields';
 
-    /**
-     * @var string
-     */
-    public $constraintLoaderClass = ConstraintLoader::class;
-    /**
-     * @var string
-     */
-    public $columnLoaderClass = ColumnLoader::class;
-    /**
-     * @var string
-     */
-    public $identityLoderClass = IdentityLoader::class;
     /**
      * @var ConstraintLoader
      */
@@ -101,9 +90,9 @@ class Schema extends BaseSchema
      */
     public function createLoaders()
     {
-        $this->constraintLoader = new $this->constraintLoaderClass();
-        $this->columnLoader = new $this->columnLoaderClass();
-        $this->identityLoader = new $this->identityLoderClass();
+        $this->columnLoader = Yii::$container->get(ColumnLoader::class);
+        $this->identityLoader = Yii::$container->get(IdentityLoader::class);
+        $this->constraintLoader = Yii::$container->get(ConstraintLoader::class);
     }
 
     /**

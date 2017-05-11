@@ -6,9 +6,14 @@ use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use skiptirengu\mssql\BaseLoader;
+use skiptirengu\mssql\ColumnLoader;
+use skiptirengu\mssql\ConstraintLoader;
+use skiptirengu\mssql\IdentityLoader;
 use skiptirengu\mssql\Schema;
+use Yii;
 use yii\db\DataReader;
 use yii\db\TableSchema;
+use yii\di\Container;
 
 class SchemaTest extends TestCase
 {
@@ -59,11 +64,12 @@ class SchemaTest extends TestCase
 
     public function testExtractData()
     {
-        $schema = new Schema([
-            'constraintLoaderClass' => LoaderMock::className(),
-            'columnLoaderClass' => LoaderMock::className(),
-            'identityLoderClass' => LoaderMock::className()
-        ]);
+        Yii::$container = new Container();
+        Yii::$container->set(ColumnLoader::class, LoaderMock::class);
+        Yii::$container->set(IdentityLoader::class, LoaderMock::class);
+        Yii::$container->set(ConstraintLoader::class, LoaderMock::class);
+
+        $schema = new Schema();
         $schema->createLoaders();
         $this->assertFalse($schema->extractData([['Name' => 'name']]));
         $this->assertFalse($schema->extractData([['Column_name' => 'colname']]));
