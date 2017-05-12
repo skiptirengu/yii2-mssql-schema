@@ -9,8 +9,6 @@ class ConstraintLoaderTest extends TestCase
 {
     public function defaultValuesProvider()
     {
-        // TODO LUL
-        // [geo_col] [GEOMETRY] NOT NULL DEFAULT geometry::STGeomFromText('LINESTRING (100 100, 20 180, 180 180)', 0),
         return [
             [
                 [['constraint_type' => 'DEFAULT on column time', 'constraint_keys' => '(\'2002-01-01 00:00:00\')']],
@@ -47,6 +45,14 @@ class ConstraintLoaderTest extends TestCase
             [
                 [['constraint_type' => 'DEFAULT on column double_number', 'constraint_keys' => '((42.2))']],
                 ['double_number' => '42.2']
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column binary_column', 'constraint_keys' => '(0xEA40)']],
+                ['binary_column' => '0xEA40']
+            ],
+            [
+                [['constraint_type' => 'DEFAULT on column geo_column', 'constraint_keys' => '([geometry]::STGeomFromText(\'LINESTRING (100 100, 20 180, 180 180)\',(0)))']],
+                ['geo_column' => '[geometry]::STGeomFromText(\'LINESTRING (100 100, 20 180, 180 180)\',(0))']
             ],
             [
                 [

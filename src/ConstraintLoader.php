@@ -57,10 +57,14 @@ class ConstraintLoader extends BaseLoader
     protected function extractDefaultValue(array $constraint)
     {
         if ($found = preg_match('/^DEFAULT on column ([\w\s]+)$/', $constraint['constraint_type'], $matches)) {
-            if (($default = $constraint['constraint_keys']) === '(NULL)') {
+            $default = $constraint['constraint_keys'];
+            if ($default === '(NULL)') {
                 $default = null;
-            } else {
+            } elseif (strpos($default, "('") === 0 || strpos($default, '((') === 0) {
                 preg_match("/^\((?:'|\()(.*)(?:'|\))\)$/s", $default, $defaultMatches);
+                $default = $defaultMatches[1];
+            } else {
+                preg_match("/^\((.*)\)$/s", $default, $defaultMatches);
                 $default = $defaultMatches[1];
             }
             $this->defaultValues[$matches[1]] = $default;

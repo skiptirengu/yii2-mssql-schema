@@ -15,6 +15,8 @@ CREATE TABLE [dbo].[testschema1] (
   [float_col]    [FLOAT]         NULL,
   [tiny_col]     [TINYINT]       NOT NULL,
   [bit_col]      [BIT]           NOT NULL,
+  [bin_col]      [VARBINARY]     NOT NULL DEFAULT 0xe240,
+  [geo_col]      [GEOMETRY]      NOT NULL DEFAULT geometry::STGeomFromText('LINESTRING (100 100, 20 180, 180 180)', 0),
   CONSTRAINT [PK_testschema1] PRIMARY KEY CLUSTERED (
     [foreign_key1], [foreign_key2] ASC
   )

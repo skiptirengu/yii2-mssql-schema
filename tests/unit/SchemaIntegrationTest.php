@@ -153,6 +153,26 @@ class SchemaIntegrationTest extends TestCase
                 'isPrimaryKey' => null,
                 'defaultValue' => null
             ]],
+            [[
+                'column' => 'bin_col',
+                'allowNull' => false,
+                'phpType' => 'resource',
+                'type' => 'binary',
+                'dbType' => 'varbinary',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => '0xE240' //upper
+            ]],
+            [[
+                'column' => 'geo_col',
+                'allowNull' => false,
+                'phpType' => 'string',
+                'type' => 'string',
+                'dbType' => 'geometry',
+                'autoIncrement' => null,
+                'isPrimaryKey' => null,
+                'defaultValue' => '[geometry]::STGeomFromText(\'LINESTRING (100 100, 20 180, 180 180)\',(0))'
+            ]],
         ];
     }
 
