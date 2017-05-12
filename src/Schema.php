@@ -185,7 +185,7 @@ class Schema extends BaseSchema
         }
 
         if ($column->size === 1 && ($column->dbType === 'tinyint' || $column->dbType === 'bit')) {
-            $column->type = 'boolean';
+            $column->type = self::TYPE_BOOLEAN;
         } elseif (isset($this->typeMap[$column->dbType])) {
             $column->type = $this->typeMap[$column->dbType];
         } else {
