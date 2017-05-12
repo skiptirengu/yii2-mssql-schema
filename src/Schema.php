@@ -221,4 +221,15 @@ class Schema extends BaseSchema
         $this->columnLoader = null;
         $this->identityLoader = null;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function findUniqueIndexes($table)
+    {
+        $this->prepareTableSchema($table);
+        $indexes = $this->constraintLoader->uniqueIndexes;
+        $this->resetTableInfo();
+        return $indexes;
+    }
 }

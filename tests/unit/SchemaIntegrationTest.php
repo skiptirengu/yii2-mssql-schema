@@ -200,4 +200,14 @@ class SchemaIntegrationTest extends TestCase
             $schema->foreignKeys
         );
     }
+
+    public function testUniqueIndexes()
+    {
+        $schema = $this->app->getDb()->getSchema();
+        $indexes = $schema->findUniqueIndexes($schema->getTableSchema('testschema2'));
+        // indexes created with CREATE UNIQUE INDEX are not listed
+        $this->assertCount(1, $indexes);
+        $first = reset($indexes);
+        $this->assertSame(['int_unique3'], array_values($first));
+    }
 }
