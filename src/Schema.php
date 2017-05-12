@@ -184,13 +184,8 @@ class Schema extends BaseSchema
             $column->size = (int)$info['Length'];
         }
 
-        $isBitField = $column->dbType === 'bit';
-        if ($column->size === 1 && ($column->dbType === 'tinyint' || $isBitField)) {
+        if ($column->size === 1 && ($column->dbType === 'tinyint' || $column->dbType === 'bit')) {
             $column->type = 'boolean';
-        } elseif ($isBitField && $column->size > 32) {
-            $column->type = 'bigint';
-        } elseif ($isBitField && $column->size === 32) {
-            $column->type = 'integer';
         } elseif (isset($this->typeMap[$column->dbType])) {
             $column->type = $this->typeMap[$column->dbType];
         } else {
