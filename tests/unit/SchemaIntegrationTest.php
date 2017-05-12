@@ -191,4 +191,13 @@ class SchemaIntegrationTest extends TestCase
         $this->assertSame($info['isPrimaryKey'], $column->isPrimaryKey, 'isPrimaryKey does not match');
         $this->assertSame($info['defaultValue'], $column->defaultValue, 'defaultValue does not match');
     }
+
+    public function testForeignKeys()
+    {
+        $schema = $this->app->getDb()->getTableSchema('testschema2');
+        $this->assertSame(
+            ['FK_testschema1' => [0 => 'testschema1', 'local_key1' => 'foreign_key1', 'local_key2' => 'foreign_key2']],
+            $schema->foreignKeys
+        );
+    }
 }
