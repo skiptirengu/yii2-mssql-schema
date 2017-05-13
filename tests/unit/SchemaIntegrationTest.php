@@ -27,7 +27,7 @@ class SchemaIntegrationTest extends TestCase
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-        $pdo = new PDO(self::$conStr, self::$conUsr, self::$conPwd);
+        $pdo = new PDO(getenv('CON_STRING'), getenv('CON_DBUSER'), getenv('CON_PASSWD'));
         $sql = explode('--', file_get_contents(TESTS_BASE_PATH . '/data/tables.sql'));
         foreach ($sql as $statement) {
             if (!$pdo->prepare($statement)->execute()) {
@@ -46,9 +46,9 @@ class SchemaIntegrationTest extends TestCase
             'components' => [
                 'db' => [
                     'class' => Connection::class,
-                    'dsn' => self::$conStr,
-                    'username' => self::$conUsr,
-                    'password' => self::$conPwd,
+                    'dsn' => getenv('CON_STRING'),
+                    'username' => getenv('CON_DBUSER'),
+                    'password' => getenv('CON_PASSWD'),
                     'charset' => 'UTF-8',
                     'schemaMap' => [
                         'dblib' => Schema::class,
