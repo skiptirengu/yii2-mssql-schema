@@ -35,6 +35,10 @@ CREATE UNIQUE INDEX UQ_varchar1and2
   ON [dbo].[testschema2] ([int_unique1], [int_unique2]);
 --
 CREATE VIEW [dbo].[testchemaview] AS
-  SELECT *
-  FROM [dbo].[testschema1]
-  WHERE integer_col > 10;
+  SELECT
+    [p1].[geo_col],
+    [p2].[int_unique3]
+  FROM [dbo].[testschema1] [p1]
+    INNER JOIN testschema2 [p2]
+      ON [p1].[foreign_key1] = [p2].[local_key1] AND [p1].[foreign_key2] = [p2].[local_key2]
+  WHERE [p1].[integer_col] > 10;

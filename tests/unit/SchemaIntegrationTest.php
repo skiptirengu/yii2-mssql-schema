@@ -15,10 +15,6 @@ use yii\db\Connection;
  */
 class SchemaIntegrationTest extends TestCase
 {
-    protected static $conStr = 'sqlsrv:Server=localhost;Database=testdb';
-    protected static $conUsr = 'sa';
-    protected static $conPwd = 'Admin1234!';
-
     /**
      * @var Application
      */
@@ -51,9 +47,7 @@ class SchemaIntegrationTest extends TestCase
                     'password' => getenv('CON_PASSWD'),
                     'charset' => 'UTF-8',
                     'schemaMap' => [
-                        'dblib' => Schema::class,
-                        'mssql' => Schema::class,
-                        'sqlsrv' => Schema::class
+                        'dblib' => Schema::class, 'mssql' => Schema::class, 'sqlsrv' => Schema::class
                     ]
                 ]
             ]
@@ -209,5 +203,24 @@ class SchemaIntegrationTest extends TestCase
         $this->assertCount(1, $indexes);
         $first = reset($indexes);
         $this->assertSame(['int_unique3'], array_values($first));
+    }
+
+    public function testView()
+    {
+        $schema = $this->app->getDb()->getTableSchema('testchemaview');
+
+        $col = $schema->getColumn('geo_col');
+        $this->assertSame('geo_col', $col->name);
+        $this->assertSame('string', $col->phpType);
+        $this->assertSame('geometry', $col->dbType);
+        $this->assertNull($col->defaultValue);
+
+        $col = $schema->getColumn('int_unique3');
+        $this->assertSame('int_unique3', $col->name);
+        $this->assertSame('integer', $col->phpType);
+        $this->assertSame('int', $col->dbType);
+        $this->assertNull($col->defaultValue);
+
+        $this->assertSame([], $schema->foreignKeys);
     }
 }
