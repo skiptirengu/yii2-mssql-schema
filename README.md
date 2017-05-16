@@ -54,6 +54,10 @@ To use this extension, just change the database configuration of your applicatio
 
 and you're set!
 
+Known issues
+------------
++ The schema does not load comments (sp_help does not support)
+
 License
 -------
 
