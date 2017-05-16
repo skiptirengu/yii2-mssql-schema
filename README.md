@@ -1,5 +1,7 @@
 # Schema class for Yii2 applications using SQL Server
 
+[![Build Status](https://travis-ci.org/skiptirengu/yii2-mssql-schema.svg?branch=master)](https://travis-ci.org/skiptirengu/yii2-mssql-schema)
+
 This extension provides an optimized Schema class for Yii2 applications using SQL Server databases, 
 and also fixes several bugs of the current core mssql implementation.
 
@@ -32,7 +34,7 @@ to the `require` section of your `composer.json` file.
 Usage
 -----
 
-To use this extension, just change the database configuration of your application to match following
+To use this extension, just change the database configuration of your application to match the following
 ```php
 // ...
 'components' => [
