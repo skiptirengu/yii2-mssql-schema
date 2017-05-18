@@ -56,9 +56,10 @@ To use this extension, just change the database configuration of your applicatio
 
 and you're set!
 
-Known issues
-------------
-+ The schema does not load comments (sp_help does not support)
+TODO
+----
++ Backport this to PHP 5.4?
++ Figure out a way to load table comments
 
 License
 -------
