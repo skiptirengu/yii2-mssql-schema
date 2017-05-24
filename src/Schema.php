@@ -195,7 +195,7 @@ class Schema extends BaseSchema
         $column->phpType = $this->getColumnPhpType($column);
 
         $default = $info['Column_default'];
-        if (!$column->isPrimaryKey && ($column->type !== 'timestamp' || $default !== 'CURRENT_TIMESTAMP')) {
+        if (!$column->isPrimaryKey && ($column->type !== self::TYPE_TIMESTAMP || $default !== 'CURRENT_TIMESTAMP')) {
             $column->defaultValue = $column->phpTypecast($default);
         }
 
