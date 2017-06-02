@@ -20,6 +20,11 @@ class Schema extends BaseSchema
      * Exception thrown when trying to read a resulset without any fields
      */
     const NO_FIELDS_EXCEPTION = 'The active result for the query contains no fields';
+    /**
+     * Exception thrown when a table does not exist
+     */
+    const UNKNOWN_TABLE_EXCEPTION = "/The object (\'.+\') does not exist in database/";
+    // TODO is there any error code for this?
 
     /**
      * @var ConstraintLoader
@@ -42,7 +47,12 @@ class Schema extends BaseSchema
         $table = new TableSchema();
 
         $this->resolveTableNames($table, $name);
-        $this->prepareTableSchema($table);
+
+        try {
+            $this->prepareTableSchema($table);
+        } catch (UnknownTableException $ex) {
+            return null;
+        }
 
         $this->findPrimaryKeys($table);
         if ($this->findColumns($table)) {
@@ -65,7 +75,17 @@ class Schema extends BaseSchema
     public function prepareTableSchema($table)
     {
         $this->createLoaders();
-        $reader = $this->createDataReader($table);
+
+        try {
+            $reader = $this->createDataReader($table);
+        } catch (Exception $ex) {
+            if (preg_match(self::UNKNOWN_TABLE_EXCEPTION, $ex->getMessage())) {
+                throw new UnknownTableException($ex->getMessage());
+            } else {
+                throw $ex;
+            }
+        }
+
         do {
             try {
                 if ($this->extractData($reader->readAll())) {
@@ -83,6 +103,7 @@ class Schema extends BaseSchema
                 throw $ex;
             }
         } while ($reader->nextResult());
+
         $reader->close();
     }
 
@@ -227,7 +248,11 @@ class Schema extends BaseSchema
      */
     public function findUniqueIndexes($table)
     {
-        $this->prepareTableSchema($table);
+        try {
+            $this->prepareTableSchema($table);
+        } catch (UnknownTableException $ex) {
+            return [];
+        }
         $indexes = $this->constraintLoader->uniqueIndexes;
         $this->resetTableInfo();
         return $indexes;

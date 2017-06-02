@@ -9,6 +9,7 @@ use skiptirengu\mssql\Schema;
 use Yii;
 use yii\console\Application;
 use yii\db\Connection;
+use yii\db\mssql\TableSchema;
 
 /**
  * @group integration
@@ -222,5 +223,16 @@ class SchemaIntegrationTest extends TestCase
         $this->assertNull($col->defaultValue);
 
         $this->assertSame([], $schema->foreignKeys);
+    }
+
+    public function testTableDoesNotExist()
+    {
+        $this->assertNull(
+            $this->app->getDb()->getTableSchema('unknown_table', true)
+        );
+        $this->assertSame(
+            [],
+            $this->app->getDb()->getSchema()->findUniqueIndexes(new TableSchema(['fullName' => 'unknown_table']))
+        );
     }
 }
