@@ -2,9 +2,9 @@
 
 namespace skiptirengu\mssql;
 
-use yii\base\BaseObject;
+use yii\base\Object;
 
-abstract class BaseLoader extends BaseObject
+abstract class BaseLoader extends Object
 {
     /**
      * @var bool
